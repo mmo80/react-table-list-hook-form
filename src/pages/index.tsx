@@ -1,7 +1,7 @@
 "use client";
 
 import Head from "next/head";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
 import { create } from "zustand";
@@ -23,7 +23,6 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormMessage,
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 
@@ -80,9 +79,12 @@ export const useListStore = create<ListStoreState>()(
 export default function Home() {
   const { list, setList } = useListStore();
   const { toast } = useToast();
+  const [errorMessages, setErrorMessages] = useState<string[]>([]);
 
   const form = useForm<TPeopleFormSchema>({
     resolver: zodResolver(PeopleFormSchema),
+    criteriaMode: "all",
+    mode: "onChange",
     defaultValues: {
       people: [] as TPersonSchema[],
     },
@@ -118,6 +120,28 @@ export default function Home() {
     form.setValue("people", [...formList.people, person]);
   };
 
+  const onErrors = (errors: any) => {
+    console.log("errors: ", errors);
+
+    const errorMsgs = [] as string[];
+    const list = errors?.people ?? [];
+    list.forEach((element: any) => {
+      for (const property in element) {
+        const refItem = element[property]?.ref;
+        errorMsgs.push(element[property]?.message);
+        if (refItem) {
+          refItem.className = `${refItem.className} border-2 border-rose-500`;
+        }
+      }
+    });
+
+    if (errorMsgs.length > 0) {
+      setErrorMessages(errorMsgs);
+    } else {
+      setErrorMessages([]);
+    }
+  };
+
   return (
     <>
       <Head>
@@ -126,19 +150,17 @@ export default function Home() {
       </Head>
       <main className="flex min-h-screen flex-col items-center justify-start bg-gradient-to-b from-[#2e026d] to-[#15162c]">
         <div className="container flex flex-col items-start justify-center gap-12 px-4 py-10">
-          <h1 className="text-5xl font-extrabold tracking-tight text-white sm:text-[5rem]">
-            react-table-list-hook-
-            <span className="text-[hsl(280,100%,70%)]">form</span>
-            <p className="text-lg font-extralight tracking-normal">
-              This form includes a list created using a custom type, supported
-              by the following packages: react-hook-form, zod, shadcn/ui, and
-              zustand for state management and data persistence to local
-              storage.
-            </p>
+          <h1 className="text-5xl font-extrabold text-white sm:text-[4rem]">
+            react-table-list-hook-<span className="text-[hsl(280,100%,70%)]">form</span>
           </h1>
+          <p className="text-lg font-extralight tracking-normal text-white">
+            This form includes a list created using a custom type, supported by
+            the following packages: react-hook-form, zod, shadcn/ui, and zustand
+            for state management and data persistence to local storage.
+          </p>
           <div className="text-white">
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)}>
+              <form onSubmit={form.handleSubmit(onSubmit, onErrors)}>
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -159,13 +181,11 @@ export default function Home() {
                               <FormItem>
                                 <FormControl>
                                   <Input
-                                    key={field.id}
                                     {...form.register(
                                       `people.${index}.firstname`,
                                     )}
                                   />
                                 </FormControl>
-                                <FormMessage />
                               </FormItem>
                             )}
                           />
@@ -179,13 +199,11 @@ export default function Home() {
                               <FormItem>
                                 <FormControl>
                                   <Input
-                                    key={field.id}
                                     {...form.register(
                                       `people.${index}.lastname`,
                                     )}
                                   />
                                 </FormControl>
-                                <FormMessage />
                               </FormItem>
                             )}
                           />
@@ -199,13 +217,11 @@ export default function Home() {
                               <FormItem>
                                 <FormControl>
                                   <Input
-                                    key={field.id}
                                     {...form.register(
                                       `people.${index}.nickname`,
                                     )}
                                   />
                                 </FormControl>
-                                <FormMessage />
                               </FormItem>
                             )}
                           />
@@ -223,8 +239,15 @@ export default function Home() {
                     </TableRow>
                   </TableFooter>
                 </Table>
-                <div className="py-3">
-                  <Button type="submit">Save</Button>
+                <div className="p-2">
+                  {errorMessages.map((error, i) => (
+                    <p key={i} className="block text-red-700">
+                      * {error}
+                    </p>
+                  ))}
+                </div>
+                <div className="p-2">
+                  <Button type="submit">Save Form</Button>
                 </div>
               </form>
             </Form>

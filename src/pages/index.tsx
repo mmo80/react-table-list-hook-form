@@ -18,13 +18,9 @@ import {
 import { useToast } from "~/components/ui/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "~/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-} from "~/components/ui/form";
+import { Form, FormControl, FormField, FormItem } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
+import { removeClassesByWord } from "~/lib/utils";
 
 const PersonSchema = z.object({
   id: z.number(),
@@ -32,7 +28,7 @@ const PersonSchema = z.object({
   lastname: z.string().min(2, "Lastname must contain at least 2 characters"),
   nickname: z
     .union([
-      z.string().min(2, "Lastname must contain at least 2 characters"),
+      z.string().min(2, "Nickname must contain at least 2 characters"),
       z.literal(""),
     ])
     .optional(),
@@ -83,8 +79,6 @@ export default function Home() {
 
   const form = useForm<TPeopleFormSchema>({
     resolver: zodResolver(PeopleFormSchema),
-    criteriaMode: "all",
-    mode: "onChange",
     defaultValues: {
       people: [] as TPersonSchema[],
     },
@@ -97,6 +91,7 @@ export default function Home() {
   const { fields } = useFieldArray({ name: "people", control: form.control });
 
   const onSubmit = (data: TPeopleFormSchema) => {
+    setErrorMessages([]);
     console.log(data);
     setList(data.people);
     toast({
@@ -121,8 +116,6 @@ export default function Home() {
   };
 
   const onErrors = (errors: any) => {
-    console.log("errors: ", errors);
-
     const errorMsgs = [] as string[];
     const list = errors?.people ?? [];
     list.forEach((element: any) => {
@@ -130,7 +123,8 @@ export default function Home() {
         const refItem = element[property]?.ref;
         errorMsgs.push(element[property]?.message);
         if (refItem) {
-          refItem.className = `${refItem.className} border-2 border-rose-500`;
+          const newClasses = removeClassesByWord(refItem.className, "border");
+          refItem.className = `${newClasses} border border-1 border-rose-500`;
         }
       }
     });
@@ -151,12 +145,14 @@ export default function Home() {
       <main className="flex min-h-screen flex-col items-center justify-start bg-gradient-to-b from-[#2e026d] to-[#15162c]">
         <div className="container flex flex-col items-start justify-center gap-12 px-4 py-10">
           <h1 className="text-5xl font-extrabold text-white sm:text-[4rem]">
-            react-table-list-hook-<span className="text-[hsl(280,100%,70%)]">form</span>
+            react-table-list-hook-
+            <span className="text-[hsl(280,100%,70%)]">form</span>
           </h1>
           <p className="text-lg font-extralight tracking-normal text-white">
-            This form includes a list created using a custom type, supported by
-            the following packages: react-hook-form, zod, shadcn/ui, and zustand
-            for state management and data persistence to local storage.
+            This is a working example that demonstrates how to build a React
+            form utilizing a list of a custom type, using the following
+            packages: react-hook-form, zod, shadcn/ui, and zustand for state
+            management and data persistence to local storage.
           </p>
           <div className="text-white">
             <Form {...form}>

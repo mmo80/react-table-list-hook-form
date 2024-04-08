@@ -5,7 +5,7 @@ This is a working example that demonstrates how to build a Reacto hook form util
 Check out the file: [src/pages/index.tsx](/src/pages/index.tsx)
 
 Screenshot:
-![Screenshot of the webpage in this repo.](/public/screenshot.png)
+![Screenshot of the webpage in this repo.](/public/screenshot01.png)
 
 If working with a list of hundreds or thousands of rows check out: [Working with virtualized lists](https://www.react-hook-form.com/advanced-usage/)
 

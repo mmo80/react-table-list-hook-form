@@ -1,6 +1,6 @@
 # react-table-list-hook-form
 
-This is a working example that demonstrates how to build a Reacto hook form utilizing a list of a custom type, using the following packages: `react-hook-form`, `zod`, `shadcn/ui`, and `zustand` for state management and data persistence to local storage.
+This is a working example that demonstrates how to build a React-hook-form utilizing a list of a custom type, using the following packages: `react-hook-form`, `zod`, `shadcn/ui`, and `zustand` for state management and data persistence to local storage.
 
 Check out the file: [src/pages/index.tsx](/src/pages/index.tsx)
 
